@@ -95,12 +95,10 @@ namespace Shop
 
         public int GenerateRandomMoney()
         {
-            Random random = new Random();
-
             int minLimitRandom = 1000;
             int maxLimitRandom = 5000;
-
-            int money = random.Next(minLimitRandom, maxLimitRandom);
+            
+            int money = UserUtils.GenerateRandomNumber(minLimitRandom, maxLimitRandom);
 
             return money;
         }
@@ -125,14 +123,14 @@ namespace Shop
 
             Console.WriteLine("\nВведите название товара:");
 
-            if (HasProduct(Console.ReadLine(), out Product product) && buyer.TryPay(product))
+            if (TryGetProduct(Console.ReadLine(), out Product product) && buyer.TryPay(product))
             {
                 Money += buyer.Buy(product);
                 Products.Remove(product);
             }
         }
 
-        private bool HasProduct(string line, out Product product)
+        private bool TryGetProduct(string line, out Product product)
         {
             product = null;
 
@@ -151,8 +149,6 @@ namespace Shop
 
         private List<Product> CreateProducts()
         {
-            Random random = new Random();
-
             int minLimitRandomPrice = 10;
             int maxLimitRandomPrice = 101;
 
@@ -162,7 +158,9 @@ namespace Shop
                 "соль","сахар", "перец","яблочный сок","мясо"};
 
             foreach (string name in names)
-                goods.Add(new Product(name, random.Next(minLimitRandomPrice, maxLimitRandomPrice)));
+            {
+                goods.Add(new Product(name, UserUtils.GenerateRandomNumber(minLimitRandomPrice, maxLimitRandomPrice)));
+            }
 
             return goods;
         }
@@ -211,6 +209,16 @@ namespace Shop
         public void ShowStats()
         {
             Console.WriteLine($"{Name} по цене {Price}");
+        }
+    }
+
+    class UserUtils
+    {
+        private static Random s_random;
+
+        public static int GenerateRandomNumber(int min, int max)
+        {
+            return s_random.Next(min, max);
         }
     }
 }
