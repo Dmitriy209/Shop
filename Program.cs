@@ -58,9 +58,11 @@ namespace Shop
                         break;
 
                     case CommandSellerShowBalance:
+                        _seller.ShowBalance();
                         break;
 
                     case CommandBuyerShowBalance:
+                        _buyer.ShowBalance();
                         break;
 
                     case CommandExit:
@@ -82,11 +84,6 @@ namespace Shop
         protected List<Product> Products;
         protected int Money;
 
-        public Trader()
-        {
-
-        }
-
         public void ShowGoods()
         {
             if (Products.Count != 0)
@@ -107,6 +104,11 @@ namespace Shop
 
             return money;
         }
+
+        public void ShowBalance()
+        {
+            Console.WriteLine($"Ваш баланс: {Money}");
+        }
     }
 
     class Seller : Trader
@@ -123,43 +125,11 @@ namespace Shop
 
             Console.WriteLine("\nВведите название товара:");
 
-            if (HasProduct(Console.ReadLine(), out Product product) && buyer.TryPayForOne(product))
+            if (HasProduct(Console.ReadLine(), out Product product) && buyer.TryPay(product))
             {
-                if (TryReadAmount(product, out int amount))
-                {
-                    if (buyer.TryPay(product, amount, out int priceForAmount))
-                    {
-                        buyer.Buy(product, amount, priceForAmount);
-                    }
-                }
+                Money += buyer.Buy(product);
+                Products.Remove(product);
             }
-
-        }
-
-        private bool TryReadAmount(Product product, out int amount)
-        {
-            Console.WriteLine("Введите количество:");
-            amount = ReadInt();
-
-            if (amount > 0 && amount <= product.Amount)
-            {
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Товара в таком количестве нет.");
-                return false;
-            }
-        }
-
-        private int ReadInt()
-        {
-            int number;
-
-            while (int.TryParse(Console.ReadLine(), out number) == false)
-                Console.WriteLine("Это не число.");
-
-            return number;
         }
 
         private bool HasProduct(string line, out Product product)
@@ -183,9 +153,6 @@ namespace Shop
         {
             Random random = new Random();
 
-            int minLimitRandomAmount = 1;
-            int maxLimitRandomAmount = 20;
-
             int minLimitRandomPrice = 10;
             int maxLimitRandomPrice = 101;
 
@@ -195,7 +162,7 @@ namespace Shop
                 "соль","сахар", "перец","яблочный сок","мясо"};
 
             foreach (string name in names)
-                goods.Add(new Product(name, random.Next(minLimitRandomPrice, maxLimitRandomPrice), random.Next(minLimitRandomAmount, maxLimitRandomAmount)));
+                goods.Add(new Product(name, random.Next(minLimitRandomPrice, maxLimitRandomPrice)));
 
             return goods;
         }
@@ -205,28 +172,13 @@ namespace Shop
     {
         public Buyer()
         {
-            List<Product> Goods = new List<Product>();
+            Products = new List<Product>();
             Money = GenerateRandomMoney();
         }
 
-        public bool TryPayForOne(Product product)
+        public bool TryPay(Product product)
         {
             if (Money >= product.Price)
-            {
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("У вас не хватает денег даже на единицу товара.");
-                return false;
-            }
-        }
-
-        public bool TryPay(Product product, int amount, out int priceForAmount)
-        {
-            priceForAmount = product.Price * amount;
-
-            if (Money >= priceForAmount)
             {
                 return true;
             }
@@ -237,30 +189,28 @@ namespace Shop
             }
         }
 
-        public int Buy(Product product, int amount, int priceForAmount)
+        public int Buy(Product product)
         {
             Products.Add(product);
-            Money -= priceForAmount;
-            return priceForAmount;
+            Money -= product.Price;
+            return product.Price;
         }
     }
 
     class Product
     {
-        public Product(string name, int price, int amount)
+        public Product(string name, int price)
         {
             Name = name;
             Price = price;
-            Amount = amount;
         }
 
         public string Name { get; private set; }
-        public int Amount { get; private set; }
         public int Price { get; private set; }
 
         public void ShowStats()
         {
-            Console.WriteLine($"{Name} в количестве: {Amount}, по цене за штуку: {Price}");
+            Console.WriteLine($"{Name} по цене {Price}");
         }
     }
 }
