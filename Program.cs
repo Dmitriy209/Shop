@@ -258,8 +258,6 @@ namespace Shop
         public int Amount { get; private set; }
         public int Price { get; private set; }
 
-        //public void Get
-
         public void ShowStats()
         {
             Console.WriteLine($"{Name} в количестве: {Amount}, по цене за штуку: {Price}");
