@@ -214,7 +214,7 @@ namespace Shop
 
     class UserUtils
     {
-        private static Random s_random;
+        public static Random s_random = new Random();
 
         public static int GenerateRandomNumber(int min, int max)
         {
